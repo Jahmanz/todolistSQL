@@ -8,13 +8,13 @@ namespace ToDoList.Models
   public class Item
   {
     private string _description;
-    private int _categoryId;
+    // private int _categoryId;
     private int _id;
 
-    public Item (string description, int categoryId = 0, int id = 0)
+    public Item (string description, int id = 0)
     {
       _description = description;
-      _categoryId = categoryId;
+      // _categoryId = categoryId;
       _id = id;
     }
 
@@ -29,8 +29,8 @@ namespace ToDoList.Models
             Item newItem = (Item) otherItem;
             bool idEquality = this.GetId() == newItem.GetId();
             bool descriptionEquality = this.GetDescription() == newItem.GetDescription();
-            bool categoryEquality = this.GetCategoryId() == newItem.GetCategoryId();
-            return (idEquality && descriptionEquality && categoryEquality);
+            // bool categoryEquality = this.GetCategoryId() == newItem.GetCategoryId();
+            return (idEquality && descriptionEquality);
         }
     }
     public override int GetHashCode()
@@ -52,10 +52,10 @@ namespace ToDoList.Models
     {
       return _id;
     }
-    public int GetCategoryId()
-    {
-        return _categoryId;
-    }
+    // public int GetCategoryId()
+    // {
+    //     return _categoryId;
+    // }
     public static List<Item> GetAll()
     {
       List<Item> allItems = new List<Item> {};
@@ -66,11 +66,11 @@ namespace ToDoList.Models
       MySqlDataReader rdr = cmd.ExecuteReader() as MySqlDataReader;
       while(rdr.Read())
       {
-        string itemDescription = rdr.GetString(1);
-        int itemCategoryId = rdr.GetInt32(2);
         int itemId = rdr.GetInt32(0);
-        
-        Item newItem = new Item(itemDescription, itemCategoryId, itemId);
+        string itemDescription = rdr.GetString(1);
+        // int itemCategoryId = rdr.GetInt32(2);
+
+        Item newItem = new Item(itemDescription, itemId);
         allItems.Add(newItem);
       }
       conn.Close();
@@ -81,41 +81,23 @@ namespace ToDoList.Models
       return allItems;
     }
 
-    public static void DeleteAll()
-    {
-      MySqlConnection conn = DB.Connection();
-      conn.Open();
-
-      var cmd = conn.CreateCommand() as MySqlCommand;
-      cmd.CommandText = @"DELETE FROM items;";
-
-      cmd.ExecuteNonQuery();
-
-      conn.Close();
-      if (conn != null)
-      {
-        conn.Dispose();
-      }
-    }
-
-
     public void Save()
     {
       MySqlConnection conn = DB.Connection();
       conn.Open();
 
       var cmd = conn.CreateCommand() as MySqlCommand;
-      cmd.CommandText = @"INSERT INTO `items` (`description`, `category_id`) VALUES (@ItemDescription, @category_id);";
+      cmd.CommandText = @"INSERT INTO items (description) VALUES (@Description);";
 
       MySqlParameter description = new MySqlParameter();
-      description.ParameterName = "@ItemDescription";
+      description.ParameterName = "@Description";
       description.Value = this._description;
       cmd.Parameters.Add(description);
 
-      MySqlParameter categoryId = new MySqlParameter();
-      categoryId.ParameterName = "@category_id";
-      categoryId.Value = this._categoryId;
-      cmd.Parameters.Add(categoryId);
+      // MySqlParameter categoryId = new MySqlParameter();
+      // categoryId.ParameterName = "@category_id";
+      // categoryId.Value = this._categoryId;
+      // cmd.Parameters.Add(categoryId);
 
       cmd.ExecuteNonQuery();
       _id = (int) cmd.LastInsertedId;
@@ -133,7 +115,7 @@ namespace ToDoList.Models
       conn.Open();
 
       var cmd = conn.CreateCommand() as MySqlCommand;
-      cmd.CommandText = @"SELECT * FROM `items` WHERE id = @thisId;";
+      cmd.CommandText = @"SELECT * FROM items WHERE id = @thisId;";
 
       MySqlParameter thisId = new MySqlParameter();
       thisId.ParameterName = "@thisId";
@@ -144,16 +126,16 @@ namespace ToDoList.Models
 
       int itemId = 0;
       string itemDescription = "";
-      int itemCategoryId = 0;
+      // int itemCategoryId = 0;
 
       while (rdr.Read())
       {
         itemId = rdr.GetInt32(0);
         itemDescription = rdr.GetString(1);
-        itemCategoryId = rdr.GetInt32(2);
+        // itemCategoryId = rdr.GetInt32(2);
       }
 
-      Item foundItem = new Item(itemDescription, itemCategoryId, itemId);
+      Item foundItem = new Item(itemDescription, itemId);
 
       conn.Close();
       if (conn != null)
@@ -193,22 +175,38 @@ namespace ToDoList.Models
     public void DeleteItem()
     {
         MySqlConnection conn = DB.Connection();
-            conn.Open();
-            var cmd = conn.CreateCommand() as MySqlCommand;
-            cmd.CommandText = @"DELETE FROM items WHERE id = @thisId;";
+        conn.Open();
+        var cmd = conn.CreateCommand() as MySqlCommand;
+        cmd.CommandText = @"DELETE FROM items WHERE id = @thisId;";
 
-            MySqlParameter searchId = new MySqlParameter();
-            searchId.ParameterName = "@thisId";
-            searchId.Value = _id;
-            cmd.Parameters.Add(searchId);
+        MySqlParameter searchId = new MySqlParameter();
+        searchId.ParameterName = "@thisId";
+        searchId.Value = _id;
+        cmd.Parameters.Add(searchId);
 
-            cmd.ExecuteNonQuery();
+        cmd.ExecuteNonQuery();
 
-            conn.Close();
-            if (conn != null)
-            {
-                conn.Dispose();
-            }
+        conn.Close();
+        if (conn != null)
+        {
+            conn.Dispose();
+        }
+    }
+    public static void DeleteAll()
+    {
+      MySqlConnection conn = DB.Connection();
+      conn.Open();
+
+      var cmd = conn.CreateCommand() as MySqlCommand;
+      cmd.CommandText = @"DELETE FROM items;";
+
+      cmd.ExecuteNonQuery();
+
+      conn.Close();
+      if (conn != null)
+      {
+        conn.Dispose();
+      }
     }
   }
 }
