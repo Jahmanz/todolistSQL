@@ -240,10 +240,12 @@ namespace ToDoList.Models
       conn.Open();
 
       var cmd = conn.CreateCommand() as MySqlCommand;
-      cmd.CommandText = @"SELECT category_id FROM categories_items WHERE item_id = @itemId;";
+      cmd.CommandText = @"SELECT categories.* FROM items
+          JOIN categories_items ON (items.id = categories_items.item_id) 
+          JOIN categories ON (categories_items.category_id = categories.id) WHERE items.id = @ItemId;";
 
       MySqlParameter itemIdParameter = new MySqlParameter();
-      itemIdParameter.ParameterName = "@itemId";
+      itemIdParameter.ParameterName = "@ItemId";
       itemIdParameter.Value = _id;
       cmd.Parameters.Add(itemIdParameter);
 

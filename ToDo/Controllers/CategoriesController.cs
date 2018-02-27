@@ -41,13 +41,15 @@ namespace ToDoListApp.Controllers
             return View("Details", model);
         }
 
-        // [HttpPost("/categories/details")]
-        // public ActionResult PostDetails()
-        // {
-        //     Item newItem = new Item (Request.Form["new-item"], Int32.Parse(Request.Form["category-id"]));
-        //     newItem.Save();
-        //     return RedirectToAction("Details", new {id = newItem.GetCategoryId()});
-        // }
+        [HttpPost("/categories/details")]
+        public ActionResult PostDetails()
+        {
+            Item newItem = new Item(Request.Form["new-item"]);
+            newItem.Save();
+            Category thisCategory = Category.Find(Int32.Parse(Request.Form["category-id"]));
+            thisCategory.AddItem(newItem);
+            return RedirectToAction("Details", new {id = newItem.GetCategories()});
+        }
 
         [HttpPost("/categories/delete")]
         public ActionResult DeleteAll()
