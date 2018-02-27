@@ -1,15 +1,20 @@
 @{
   Layout="_Layout";
 }
-    <ul>
-      @foreach(var item in Model)
-      {
-        <h4>@item.GetDescription() | <a href="/items/@item.GetId()/update"> Edit </a> </h4>
-      }
-    </ul>
-    <a href="/items/new">Add a new item.</a>
 
-    <form action="/items/delete" method="post">
-    <button type="submit" name="button">Clear All Items</button>
-    <!-- <button type="submit" name="button">Delete Item</button> -->
-    </form>
+
+<h2>Items:</h2>
+@if (Model.Count != 0)
+{
+  <ul>
+    @foreach (var item in Model)
+    {
+      <li><a href='/items/@item.GetId()'>@item.GetDescription()</a>
+      <a href="/items/@item.GetId()/update">Edit</a> ||
+      <a method="post" href="/items/@item.GetId()/delete">Delete</a></li>
+     }
+   </ul>
+ }
+<br>
+<h4><a href="/items/new">Add new Item</a></h4>
+<h4><a href="/">Return Home</a></h4>

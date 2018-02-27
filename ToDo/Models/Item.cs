@@ -91,11 +91,6 @@ namespace ToDoList.Models
       description.Value = this._description;
       cmd.Parameters.Add(description);
 
-      // MySqlParameter categoryId = new MySqlParameter();
-      // categoryId.ParameterName = "@category_id";
-      // categoryId.Value = this._categoryId;
-      // cmd.Parameters.Add(categoryId);
-
       cmd.ExecuteNonQuery();
       _id = (int) cmd.LastInsertedId;
 
@@ -123,13 +118,11 @@ namespace ToDoList.Models
 
       int itemId = 0;
       string itemDescription = "";
-      // int itemCategoryId = 0;
 
       while (rdr.Read())
       {
         itemId = rdr.GetInt32(0);
         itemDescription = rdr.GetString(1);
-        // itemCategoryId = rdr.GetInt32(2);
       }
 
       Item foundItem = new Item(itemDescription, itemId);
@@ -170,44 +163,7 @@ namespace ToDoList.Models
       }
     }
 
-    public void Delete()
-    {
-      MySqlConnection conn = DB.Connection();
-      conn.Open();
-      var cmd = conn.CreateCommand() as MySqlCommand;
-      cmd.CommandText = @"DELETE FROM items WHERE id = @ItemId; DELETE FROM categories_items WHERE item_id = @ItemId;";
 
-      MySqlParameter itemIdParameter = new MySqlParameter();
-      itemIdParameter.ParameterName = "@ItemId";
-      itemIdParameter.Value = this.GetId();
-      cmd.Parameters.Add(itemIdParameter);
-
-      cmd.ExecuteNonQuery();
-
-      conn.Close();
-      if (conn != null)
-      {
-        conn.Dispose();
-      }
-    }
-
-    public static void DeleteAll()
-    {
-      MySqlConnection conn = DB.Connection();
-      conn.Open();
-
-      var cmd = conn.CreateCommand() as MySqlCommand;
-      cmd.CommandText = @"DELETE FROM items;";
-
-      cmd.ExecuteNonQuery();
-
-      conn.Close();
-      if (conn != null)
-      {
-        conn.Dispose();
-      }
-
-    }
 
     public void AddCategory(Category newCategory)
     {
@@ -241,8 +197,8 @@ namespace ToDoList.Models
 
       var cmd = conn.CreateCommand() as MySqlCommand;
       cmd.CommandText = @"SELECT categories.* FROM items
-          JOIN categories_items ON (items.id = categories_items.item_id) 
-          JOIN categories ON (categories_items.category_id = categories.id) WHERE items.id = @ItemId;";
+      JOIN categories_items ON (items.id = categories_items.item_id)
+      JOIN categories ON (categories_items.category_id = categories.id) WHERE items.id = @ItemId;";
 
       MySqlParameter itemIdParameter = new MySqlParameter();
       itemIdParameter.ParameterName = "@ItemId";
@@ -286,6 +242,45 @@ namespace ToDoList.Models
         conn.Dispose();
       }
       return categories;
+    }
+
+    public void Delete()
+    {
+      MySqlConnection conn = DB.Connection();
+      conn.Open();
+      var cmd = conn.CreateCommand() as MySqlCommand;
+      cmd.CommandText = @"DELETE FROM items WHERE id = @ItemId; DELETE FROM categories_items WHERE item_id = @ItemId;";
+
+      MySqlParameter itemIdParameter = new MySqlParameter();
+      itemIdParameter.ParameterName = "@ItemId";
+      itemIdParameter.Value = this.GetId();
+      cmd.Parameters.Add(itemIdParameter);
+
+      cmd.ExecuteNonQuery();
+
+      conn.Close();
+      if (conn != null)
+      {
+        conn.Dispose();
+      }
+
+    }
+
+    public static void DeleteAll()
+    {
+      MySqlConnection conn = DB.Connection();
+      conn.Open();
+
+      var cmd = conn.CreateCommand() as MySqlCommand;
+      cmd.CommandText = @"DELETE FROM items;";
+
+      cmd.ExecuteNonQuery();
+
+      conn.Close();
+      if (conn != null)
+      {
+        conn.Dispose();
+      }
     }
   }
 }

@@ -1,7 +1,31 @@
 @{
   Layout="_Layout";
 }
-        <h1>@Model.GetName()</h1>
-        <a href='/items/new'>Add item</a>
-        <a href='/items'>View all items</a>
-    
+      <h1>To Do List</h1>
+      <h2>Item: @Model["item"].GetDescription()<h2>
+        <hr/>
+        @if (@Model["itemCategories"].Count != 0)
+        {
+          <h4>This item has these categories:</h4>
+          <ul>
+          @foreach (Categroy category in @Model ["itemCategories"])
+          {
+             <li>@category.GetName()<a href="/categories/@category.GetId()/update">Edit</a> | <a href="/categories/@category.GetId()/delete">Delete</a></li>
+          }
+          </ul>
+        }
+
+<h4> Add categroy to this teim:</h4>
+<form action=('/items/@Model["item"].GetId()/categories/new') method='post'>
+  <label for='category-id'>Select a category</label>
+  <select id='category-id' name='category-id' type='text'>
+    @* @model refer to the Dictionary called model in the controller.
+    @Model["allCategories"]) is tellting the route to go to model and look for the allCategories keyword with value of allCategories *@
+    @foreach (var category in @Model["allCategories"])
+    {
+      <option value='@category.GetId()'>@category.GetName()</option>
+    }
+  </select>
+  <button type='submit'>Add</button>
+</form>
+<p><a href="/">Return to Main Page</a></p>

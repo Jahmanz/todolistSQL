@@ -2,20 +2,38 @@
   Layout="_Layout";
 }
 
-        <h1>@Model["category"].GetName()</h1>
-        <hr>
-        <ul>
-          @foreach(var item in Model["items"])
-          {
-            <li><p>@item.GetDescription() | <a href="/items/@item.GetId()/update"> Edit </a> </p></li>
-          }
-        </ul>
-        <a href="/items/new/@Model["category"].GetId()">Add a new item.</a>
-        <br>
-        <br>
+@using ToDoList.Models;
 
-        <form action="/items/delete" method="post">
-        <button class="btn btn-danger" type="submit" name="button">Clear All Items</button>
-        </form>
-        <br>
-        <h4><a href="/">Return home</a></h4>
+<h2>Category: @Model["category"].GetName()</h2>
+<hr>
+@if (@Model["categoryItems"].Count != 0)
+{
+  <h4>Here are all the items in this category:</h4>
+  <ul>
+  @foreach (var item in @Model["categoryItems"])
+  {
+    <li>@item.GetDescription()</li>
+  }
+  </ul>
+}
+
+<h4>Add an item to this category:</h4>
+@* Go to the categories table, look for the category with a certain id, then go to the items table and select all items with the same category id as in the cateogires table, and those items to the categories table. *@
+<form action='/categories/@Model["category"].GetId()/items/new' method="post">
+  <label for="item-id">Select an item:</label>
+  <select id="item-id" name="item-id" type="text">
+    @* iterate through the item list that we stored in the dictionary with the key allItems and *@
+    @foreach (var item in @Model["allItems"])
+    {
+      /*Get the description of an item with a certain id*/
+      <option value="@item.GetId()">@item.GetDescription()</option>
+    }
+  </select>
+  <br>
+  <hr>
+  <button type="Submit">Add</button>
+</form>
+<br>
+<hr>
+<p><a href="/">Return to Main Page</a></p>
+<hr>

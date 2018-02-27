@@ -2,10 +2,15 @@
   Layout="_Layout";
 }
 
-    <h3>Add a new item:</h3>
-<form action="/categories/details" method="post">
-  <label for="new-item">Item Description</label>
-  <input id="new-item" name="new-item" type="text">
-  <input name="category-id" type="hidden" value="@Model">
-   <button type="submit">Add item</button>
+<h1>Add a new item</h1>
+<form action="/items" method="post">
+  <label for="item-description">Item description:</label>
+  <input type="text" name="item-description" id="item-description">
+  <br>
+  <hr>
+  <button type="submit">Add new item</button>
+  <hr>
 </form>
+<br>
+<p><a href="/">Back Home</a></p>
+<p><a href="/items">View all items</a></p>

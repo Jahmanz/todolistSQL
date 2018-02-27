@@ -1,9 +1,11 @@
 @{
   Layout="_Layout";
 }
-    <h3>Add a new Category:</h3>
-<form action="/categories" method="post">
-  <label for="new-category">Category</label>
-  <input id="new-category" name="new-category" type="text">
-  <button type="submit" name="button">Add Category</button>
+<h2>Add new category</h2>
+<hr>
+<form action="/categories/new" method="post">
+  <label for="category-name">Category name:</label>
+  <input id="category-name" name="category-name" type="text">
+  <button type="submit">Add</button>
 </form>
+<h4><a href="/">Return home</a></h4>

@@ -1,39 +1,76 @@
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using ToDoList.Models;
+using System;
 
 namespace ToDoList.Controllers
 {
     public class ItemsController : Controller
     {
 
-        // [HttpGet("/")]
-        // public ActionResult Index()
-        // {
-        //     List<Item> allItems = Item.GetAll();
-        //     return View(allItems);
-        // }
-
-        [HttpGet("/items/new/{categoryid}")]
-        public ActionResult CreateForm(int categoryid)
+        [HttpGet("/items")]
+        public ActionResult Index()
         {
-            return View(categoryid);
+            List<Item> allItems = Item.GetAll();
+            return View(allItems);
         }
 
-        [HttpGet("/items/{id}")]
-        public ActionResult Details(int id)
+        [HttpGet("/items/new")]
+        public ActionResult CreateForm()
         {
-            Item item = Item.Find(id);
-            return View(item);
+            return View();
         }
 
         [HttpPost("/items")]
         public ActionResult Create()
         {
-          Item newItem = new Item (Request.Form["new-item"]);
+          Item newItem = new Item(Request.Form["item-description"]);
           newItem.Save();
-          List<Item> allItems = Item.GetAll();
-          return View("Index", allItems);
+          return RedirectToAction("Success", "Home");
+        }
+        //ONE TASK
+        [HttpGet("/items/{id}")]
+        public ActionResult Details(int id)
+        {
+          Dictionary<string, object> model = new Dictionary<string, object>();
+          Item selectedItem = Item.Find(id);
+          List<Category> itemCategories = selectedItem.GetCategories();
+          List<Category> allCategories = Category.GetAll();
+          model.Add("item", selectedItem);
+          model.Add("itemCategories", itemCategories);
+          model.Add("allCategories", allCategories);
+          return View(model);
+        }
+
+        [HttpGet("/items/{id}/update")]
+        public ActionResult UpdateForm(int id)
+        {
+            Item thisItem = Item.Find(id);
+            return View(thisItem);
+        }
+
+        [HttpPost("/items/{id}/update")]
+        public ActionResult Update(int id)
+        {
+            Item thisItem = Item.Find(id);
+            thisItem.Edit(Request.Form["newname"]);
+            return RedirectToAction("Index");
+        }
+        //We find the correct Category object and the correct Item object from the form inputs. Then we run our AddCategory() method on our Item object, and then we render our Home/Success.cshtml file to confirm that our form submitted correctly.
+        [HttpPost("/items/{itemId}/categories/new")]
+        public ActionResult AddCategory(int itemId)
+        {
+            Item item = Item.Find(itemId);
+            Category category = Category.Find(Int32.Parse(Request.Form["category-id"]));
+            item.AddCategory(category);
+            return RedirectToAction("Success", "Home");
+        }
+        [HttpGet("/items{id}/delete")]
+        public ActionResult DeleteOne(int id)
+        {
+            Item thisItem = Item.Find(id);
+            thisItem.Delete();
+            return RedirectToAction("index");
         }
 
         [HttpPost("/items/delete")]
@@ -42,35 +79,5 @@ namespace ToDoList.Controllers
           Item.DeleteAll();
           return View();
         }
-        [HttpGet("/items/{id}/update")]
-        public ActionResult UpdateForm(int id)
-        {
-            Item thisItem = Item.Find(id);
-            return View(thisItem);
-        }
-        [HttpPost("/items/{id}/update")]
-        public ActionResult Update(int id)
-        {
-            Item thisItem = Item.Find(id);
-            thisItem.Edit(Request.Form["newname"]);
-            return RedirectToAction("Index");
-        }
-
-        // [HttpGet("/items/{id}/deleteitem")]
-        // public ActionResult DeleteItemForm(int id)
-        // {
-        //     Item thisItem = Item.Find(id);
-        //     thisItem.DeleteItem();
-        //     return RedirectToAction("Details", "Categories", new {id=thisItem.GetCategoryId()});
-        // }
-        // [HttpPost("/items/{id}/deleteitem")]
-        // public ActionResult DeleteItem(int id)
-        // {
-        //     Item thisItem = Item.Find(id);
-        //     thisItem.DeleteItem();
-        //     return RedirectToAction("Index");
-        // }
-
-
     }
 }

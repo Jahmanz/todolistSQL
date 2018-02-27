@@ -3,12 +3,12 @@ using Microsoft.AspNetCore.Mvc;
 using ToDoList.Models;
 using System;
 
-namespace ToDoListApp.Controllers
+namespace ToDoList.Controllers
 {
     public class CategoriesController : Controller
     {
 
-        [HttpGet("/")]
+        [HttpGet("/categories")]
         public ActionResult Index()
         {
             List<Category> allCategories = Category.GetAll();
@@ -18,37 +18,61 @@ namespace ToDoListApp.Controllers
         [HttpGet("/categories/new")]
         public ActionResult CreateForm()
         {
-            return View();
+          return View();
         }
 
         [HttpPost("/categories")]
         public ActionResult Create()
         {
-            Category newCategory = new Category(Request.Form["new-category"]);
-            newCategory.Save();
-            List<Category> allCategories = Category.GetAll();
-            return View("Index", allCategories);
+          Category newCategory = new Category(Request.Form["category-name"]);
+          newCategory.Save();
+          return RedirectToAction("Success", "Home");
         }
 
-        [HttpGet("/categories/details/{id}")]
-        public ActionResult Details(int id)
+        [HttpGet("/categories/{id}")]
+        public ActionResult CategoryDetail(int id)
         {
             Dictionary<string, object> model = new Dictionary<string, object>();
             Category selectedCategory = Category.Find(id);
             List<Item> categoryItems = selectedCategory.GetItems();
+            List<Item> allItems = Item.GetAll();
             model.Add("category", selectedCategory);
-            model.Add("items", categoryItems);
-            return View("Details", model);
+            model.Add("categoryItems", categoryItems);
+            model.Add("allItems", allItems);
+
+            return View(model);
+        }
+        //We find the correct Item object and the correct Category object from the form inputs. Then we run our AddItem() method on our Item object, and then we render our Home/Success.cshtml file to confirm that our form submitted correctly.
+        [HttpPost("/categories/{categoryId}/items/new")]
+        public ActionResult AddItem(int categoryId)
+        {
+            Category category = Category.Find(categoryId);
+            Item item = Item.Find(Int32.Parse(Request.Form["item-id"]));
+            category.AddItem(item);
+            return RedirectToAction("Success", "Home");
+        }
+        //This route will take you to the UpdateForm page for the category
+        [HttpGet("/categories/{categoryId}/update")]
+        public ActionResult UpdateForm(int categoryId)
+        {
+          Category thisCategory = Category.Find(categoryId);
+          return View("update", thisCategory);
         }
 
-        [HttpPost("/categories/details")]
-        public ActionResult PostDetails()
+        [HttpPost("/categories{categoryId}/update")]
+        public ActionResult Update(int categoryId)
         {
-            Item newItem = new Item(Request.Form["new-item"]);
-            newItem.Save();
-            Category thisCategory = Category.Find(Int32.Parse(Request.Form["category-id"]));
-            thisCategory.AddItem(newItem);
-            return RedirectToAction("Details", new {id = newItem.GetCategories()});
+          Category thisCategory = Category.Find(categoryId);
+          thisCategory.Edit(Request.Form["newname"]);
+          return RedirectToAction("Index");
+        }
+
+        [HttpGet("/categories/{categoryId}/delete")]
+        public ActionResult DeleteOne(int categoryId)
+        {
+          Category thisCategory = Category.Find(categoryId);
+          thisCategory.Delete();
+          return RedirectToAction("index");
         }
 
         [HttpPost("/categories/delete")]
@@ -57,6 +81,5 @@ namespace ToDoListApp.Controllers
           Category.DeleteAll();
           return View();
         }
-
     }
 }
